@@ -16,7 +16,7 @@ class InterativoKNN:
         taxa_acerto = real (0-1)\n
         max_iter = integer \n
         k_init = integer
-        ##########exemplo################\n
+        ##########exemplo com dados################\n
         #Dados treinamento
         dados_trein=np.array([[10,20,30],[11,23,36],[16,29,35],[12,21,47]])\n
         rotulos_trein = np.array([2,2,1,1])\n
