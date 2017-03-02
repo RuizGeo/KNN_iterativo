@@ -5,6 +5,7 @@ Created on Fri Oct  2 22:34:56 2015
 @author: ruiz
 """
 import numpy as np
+import time
     
 class InterativoKNN:
     '''Metodo de classificacao k-vizinhos mais proximos iterativo \n
@@ -40,11 +41,14 @@ class InterativoKNN:
         '''Calcular a distancia entre treinamento e novos exemplos a ser classificados'''
         #criar um array colunas igual ao tamanho do treinamento e linhas igual aos novos exemplos  
         self.arrayDist=np.arange(self.treinamento.shape[0]*self.novos_exemplos.shape[0],dtype=np.float32).reshape(self.novos_exemplos.shape[0],self.treinamento.shape[0])
-        
+        #Get  divisor par
+        n_split=2
+        n_stop =(self.novos_exemplos.shape[0]/n_split)*n_split
+        print n_stop
         #Percorrer array novos exemplos
-        for i in xrange(self.novos_exemplos.shape[0]):
+        for i in xrange(0,n_stop,n_split):
             #calcular distancia         
-            self.arrayDist[i,:] = np.sum(self.peso*(abs(np.asarray(self.novos_exemplos[i,:],dtype=np.float32)-self.treinamento)**self.potencia),1)**(1./self.potencia)
+            self.arrayDist[i:i+n_split] = np.einsum('ijk -> ij',self.peso*(abs(np.asarray(self.novos_exemplos[i:i+n_split],dtype=np.float32)-np.repeat(self.treinamento,n_split,0).reshape(self.treinamento.shape[0],n_split,self.novos_exemplos.shape[1])))).T#**self.potencia))**(1./self.potencia)
         #print self.arrayDist
         #total de linhas do DIST deve ser igual total de linhas do novos exemplos
         assert self.arrayDist.shape[0]== self.novos_exemplos.shape[0]
@@ -97,8 +101,7 @@ class InterativoKNN:
                         #print 'break'
                         break
                         
-                   
-                
+                                   
                 classificacao[row]=classes[np.in1d(freq_classes,np.max(freq_classes))][0]    
                 valor_taxa_acerto[row]=np.max(freq_classes)/float(k_atualizado)
                 valor_KNN[row]=k_atualizado
@@ -115,12 +118,18 @@ class InterativoKNN:
         
         #Retorna um array com os rotulos
         return classificacao,valor_taxa_acerto,valor_KNN
-'''#Dados treinamento
+'''ini=time.time()
+#Dados treinamento
 dados_trein=np.array([[13,21,33],[13,21,32],[10,20,30],[11,23,36],[16,29,35],[12,21,47],[22,32,47]])
 rotulos_trein = np.array([2,2,2,2,1,1,1])
 #dados com novos exemplos a ser classificados
 dados=np.array([[11,21,31],[12,22,32],[13,23,33],[15,25,45],[18,29,39],[9,20,29]])
+#d = np.arange(1000000*3).reshape(1000000,3)
+
 classes_dados=np.array([2,2,2,1,1,2])
 knn = InterativoKNN(dados_trein,rotulos_trein,dados,1,1,0.75,3,3)
 classificacao = knn.avaliarKNN()
-print classificacao'''
+fim = time.time()
+
+#print classificacao
+print 'tempo: ',fim-ini'''
